@@ -6,6 +6,8 @@ import Routes from "./routes";
 
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 
+import "semantic-ui-css/semantic.min.css";
+
 const client = new ApolloClient({
 	uri: "http://localhost:8080/graphql",
 	cache: new InMemoryCache(),
@@ -17,12 +19,7 @@ const App = () => (
 	</ApolloProvider>
 );
 
-ReactDOM.render(
-	<React.StrictMode>
-		<App />
-	</React.StrictMode>,
-	document.getElementById("root")
-);
+ReactDOM.render(<App />, document.getElementById("root"));
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
