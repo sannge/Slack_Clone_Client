@@ -10,6 +10,7 @@
 		"apollo-link": "^1.2.14",
 		"graphql": "^15.4.0",
 		"jwt-decode": "^3.1.2",
+		"lodash": "^4.17.20",
 		"mobx": "^6.0.4",
 		"mobx-react": "^7.0.5",
 		"react": "^17.0.1",

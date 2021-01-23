@@ -1,28 +1,26 @@
-import React from 'react'
-import Channels from '../components/Channels';
-import Teams from '../components/Teams';
-import Header from '../components/Header';
-import Input from '../components/Input';
-import Messages from '../components/Messages';
-import AppLayout from '../components/AppLayout';
+import React from "react";
+import Channels from "../components/Channels";
+import Teams from "../components/Teams";
+import Header from "../components/Header";
+import SendMessage from "../components/SendMessage";
+import Messages from "../components/Messages";
+import AppLayout from "../components/AppLayout";
+import Sidebar from "../containers/SideBar";
 
 function ViewTeam() {
-    return (
-        <AppLayout>
-            <Teams>Teams</Teams>
-            <Channels>Channels</Channels>
-            <Header>Header</Header>
-            <Messages>
-                <ul className="message-list">
-                    <li></li>
-                    <li></li>
-                </ul>
-            </Messages>
-            <Input>
-                <input type="text" placeholder="CSS Grid Layout Module"/>
-            </Input>
-        </AppLayout>
-    )
+	return (
+		<AppLayout>
+			<Sidebar currentTeam={15} />
+			<Header channelName='general' />
+			<Messages>
+				<ul className='message-list'>
+					<li></li>
+					<li></li>
+				</ul>
+			</Messages>
+			<SendMessage channelName='general' />
+		</AppLayout>
+	);
 }
 
-export default ViewTeam
+export default ViewTeam;
