@@ -10,7 +10,7 @@ import Register from "./Register";
 import Home from "./Home";
 import Login from "./Login";
 import Team from "./CreateTeam";
-import ViewTeam from './ViewTeam';
+import ViewTeam from "./ViewTeam";
 import decode from "jwt-decode";
 
 const isAuthenticated = () => {
@@ -50,7 +50,11 @@ function RouterIndex() {
 				<Route path='/' exact component={Home} />
 				<Route path='/register' exact component={Register} />
 				<Route path='/login' exact component={Login} />
-				<Route path='/view-team' exact component={ViewTeam} />
+				<Route
+					path='/view-team/:teamId?/:channelId?'
+					exact
+					component={ViewTeam}
+				/>
 				<PrivateRoute path='/create-team' exact component={Team} />
 			</Switch>
 		</Router>

@@ -5,19 +5,30 @@ import decode from "jwt-decode";
 
 import Teams from "../components/Teams";
 import Channels from "../components/Channels";
-import _ from "lodash";
+import findIndex from "lodash/findIndex";
+import { withRouter } from "react-router-dom";
 
-const Sidebar = ({ data: { loading, allTeams, error }, currentTeam }) => {
+const Sidebar = ({
+	history,
+	data: { loading, allTeams, error },
+	currentTeamId,
+}) => {
 	if (loading) {
 		return null;
 	}
 	if (error) {
 		console.log(error);
 	}
-
-	const teamIdx = _.findIndex(allTeams, ["id", currentTeam]);
+	console.log(currentTeamId);
+	let teamIdx = currentTeamId
+		? findIndex(allTeams, ["id", parseInt(currentTeamId, 10)])
+		: history.push(`/view-team/${allTeams[0].id}`);
+	if (teamIdx === -1) {
+		history.push(`/view-team/${allTeams[0].id}`);
+	}
 	const team = allTeams[teamIdx];
-	console.log(team);
+	console.log(teamIdx);
+	console.log(allTeams);
 
 	let username = "";
 
@@ -58,4 +69,4 @@ const ALLTEAMSQUERY = gql`
 	}
 `;
 
-export default graphql(ALLTEAMSQUERY)(Sidebar);
+export default graphql(ALLTEAMSQUERY)(withRouter(Sidebar));

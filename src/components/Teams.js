@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { NavLink } from "react-router-dom";
 
 const TeamWrapper = styled.div`
 	grid-column: 1;
@@ -34,8 +35,23 @@ const TeamListItem = styled.li`
 	}
 `;
 
-const team = ({ id, letter }) => (
-	<TeamListItem key={`team-${id}`}>{letter}</TeamListItem>
+const EachTeamItem = styled.div`
+	& .active .listItem {
+		border-style: solid;
+		border-width: thick;
+		border-color: #767676;
+	}
+`;
+
+const team = ({ id, letter }, index) => (
+	<EachTeamItem>
+		<NavLink
+			activeClassName='active'
+			key={`team-${id}`}
+			to={`/view-team/${id}`}>
+			<TeamListItem className='listItem'>{letter}</TeamListItem>
+		</NavLink>
+	</EachTeamItem>
 );
 export default ({ teams }) => (
 	<TeamWrapper>

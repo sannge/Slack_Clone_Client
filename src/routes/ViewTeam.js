@@ -7,10 +7,10 @@ import Messages from "../components/Messages";
 import AppLayout from "../components/AppLayout";
 import Sidebar from "../containers/SideBar";
 
-function ViewTeam() {
+function ViewTeam({ match: { params } }) {
 	return (
 		<AppLayout>
-			<Sidebar currentTeam={15} />
+			<Sidebar currentTeamId={params.teamId} />
 			<Header channelName='general' />
 			<Messages>
 				<ul className='message-list'>
