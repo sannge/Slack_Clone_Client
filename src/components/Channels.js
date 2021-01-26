@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import React from "react";
+import { Icon } from "semantic-ui-react";
 
 const ChannelWrapper = styled.div`
 	grid-column: 2;
@@ -22,6 +23,7 @@ const SideBarList = styled.ul`
 const paddingLeft = `padding-left: 10px`;
 
 const SideBarListItem = styled.li`
+	margin-left: 5px;
 	padding: 2px;
 	${paddingLeft};
 	cursor: pointer;
@@ -54,7 +56,7 @@ const user = ({ id, name }) => (
 	</SideBarListItem>
 );
 
-export default ({ teamName, username, channels, users }) => (
+export default ({ teamName, username, channels, users, onAddChannelClick }) => (
 	<ChannelWrapper>
 		<PushRight>
 			<TeamNameHeader>{teamName}</TeamNameHeader>
@@ -62,7 +64,25 @@ export default ({ teamName, username, channels, users }) => (
 		</PushRight>
 		<div>
 			<SideBarList>
-				<SideBarListHeader>Channels</SideBarListHeader>
+				<SideBarListHeader
+					style={{
+						display: "flex",
+						justifyContent: "space-between",
+						marginBottom: "5px",
+					}}>
+					Channel{" "}
+					<Icon
+						onClick={onAddChannelClick}
+						className='addChannelIcon'
+						style={{
+							fontSize: "1.3rem",
+							paddingLeft: "5px",
+							marginRight: "15px",
+							cursor: "pointer",
+						}}
+						name='plus circle'
+					/>
+				</SideBarListHeader>
 				{channels?.length > 0 && channels.map(channel)}
 			</SideBarList>
 		</div>

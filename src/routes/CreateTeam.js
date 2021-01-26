@@ -11,6 +11,7 @@ import {
 } from "semantic-ui-react";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
+import { Redirect } from "react-router-dom";
 
 class CreateTeam extends React.Component {
 	constructor(props) {
@@ -48,6 +49,8 @@ class CreateTeam extends React.Component {
 
 		const { ok, errors, team } = response.data.createTeam;
 		if (ok) {
+			console.log("OKOK");
+			console.log(this.props.history);
 			this.props.history.push(`/view-team/${team.id}`);
 		} else {
 			const err = {};

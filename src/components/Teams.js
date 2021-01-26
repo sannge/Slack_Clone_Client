@@ -44,11 +44,8 @@ const EachTeamItem = styled.div`
 `;
 
 const team = ({ id, letter }, index) => (
-	<EachTeamItem>
-		<NavLink
-			activeClassName='active'
-			key={`team-${id}`}
-			to={`/view-team/${id}`}>
+	<EachTeamItem key={`team-${id}`}>
+		<NavLink activeClassName='active' to={`/view-team/${id}`}>
 			<TeamListItem className='listItem'>{letter}</TeamListItem>
 		</NavLink>
 	</EachTeamItem>
