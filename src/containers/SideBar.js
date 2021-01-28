@@ -12,19 +12,31 @@ class Sidebar extends React.Component {
 		openInvitePeopleModal: false,
 	};
 
-	handleAddChannelClick = () => {
+	handleAddChannelClick = (e) => {
+		if (e) {
+			e.preventDefault();
+		}
 		this.setState({ openAddChannelModal: true });
 	};
 
-	handleCloseAddChannelModal = () => {
+	handleCloseAddChannelModal = (e) => {
+		if (e) {
+			e.preventDefault();
+		}
 		this.setState({ openAddChannelModal: false });
 	};
 
-	onInvitePeople = () => {
+	onInvitePeople = (e) => {
+		if (e) {
+			e.preventDefault();
+		}
 		this.setState({ openInvitePeopleModal: true });
 	};
 
-	onInvitePeopleClose = () => {
+	onInvitePeopleClose = (e) => {
+		if (e) {
+			e.preventDefault();
+		}
 		this.setState({ openInvitePeopleModal: false });
 	};
 
@@ -37,10 +49,12 @@ class Sidebar extends React.Component {
 		// }
 
 		let username = "";
+		let isOwner = false;
 
 		try {
 			const token = localStorage.getItem("token");
 			const { user } = decode(token);
+			isOwner = user.id === team?.owner;
 			username = user.username;
 		} catch (err) {}
 
@@ -52,6 +66,7 @@ class Sidebar extends React.Component {
 					teamName={team?.name}
 					username={username}
 					teamId={team?.id}
+					isOwner={isOwner}
 					channels={team?.channels}
 					onAddChannelClick={this.handleAddChannelClick}
 					onInvitePeople={this.onInvitePeople}

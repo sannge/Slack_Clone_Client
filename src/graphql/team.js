@@ -5,6 +5,7 @@ export const ALLTEAMSQUERY = gql`
 		allTeams {
 			id
 			name
+			owner
 			channels {
 				id
 				name

@@ -4,7 +4,7 @@ import { Formik } from "formik";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { ALLTEAMSQUERY } from "../graphql/team";
-import findIndex from "lodash/findIndex";
+import normalizeErrors from "../normalizeErrors";
 
 function AddChannelModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 	return (
@@ -50,7 +50,16 @@ function AddChannelModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 								},
 							});
 							if (response) {
-								onCloseAddChannelClick();
+								const {
+									data: {
+										createChannel: { ok },
+									},
+								} = response;
+								if (!ok) {
+									// errors.name = normalizeErrors(error)[0];
+								} else {
+									onCloseAddChannelClick();
+								}
 							}
 						} catch (err) {
 							values.name = "";
@@ -69,6 +78,8 @@ function AddChannelModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 						/* and other goodies */
 					}) => (
 						<Form>
+							{console.log(errors.name)}
+
 							<Form.Field>
 								<Input
 									value={values.name}

@@ -3,57 +3,32 @@ import { Form, Input, Modal, Button } from "semantic-ui-react";
 import { Formik } from "formik";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { ALLTEAMSQUERY } from "../graphql/team";
-import findIndex from "lodash/findIndex";
 
-function InvitePeopleModal({ open, onCloseAddChannelClick, teamId, mutate }) {
+import normalizeErrors from "../normalizeErrors";
+
+function InvitePeopleModal({ open, onClose, teamId, mutate }) {
 	return (
-		<Modal open={open} onClose={onCloseAddChannelClick}>
-			<Modal.Header>Add Channel</Modal.Header>
+		<Modal open={open} onClose={onClose}>
+			<Modal.Header>Invite People to your team</Modal.Header>
 			<Modal.Content>
 				<Formik
-					initialValues={{ name: "" }}
-					onSubmit={async (values, { setSubmitting }) => {
+					initialValues={{ email: "" }}
+					onSubmit={async (values, { setSubmitting, setErrors }) => {
 						let response;
 						try {
 							response = await mutate({
-								variables: { teamId: parseInt(teamId), name: values.name },
-								update: (store, { data: { createChannel } }) => {
-									const { ok, channel } = createChannel;
-									if (!ok) {
-										return;
-									}
-									console.log(ok);
-									const dataCopy = {
-										...store.readQuery({ query: ALLTEAMSQUERY }),
-									};
-
-									const teamIdx = dataCopy.allTeams.findIndex(
-										(team) => team.id === parseInt(teamId)
-									);
-
-									const allTeamsCopy = [...dataCopy.allTeams];
-									let teamCopy = { ...allTeamsCopy[teamIdx] };
-									const channelsCopy = [...teamCopy.channels];
-									channelsCopy.push(channel);
-
-									teamCopy.channels = channelsCopy;
-									allTeamsCopy[teamIdx] = teamCopy;
-									dataCopy.allTeams = allTeamsCopy;
-
-									store.writeQuery({
-										query: ALLTEAMSQUERY,
-										data: dataCopy,
-									});
-									// data.comments.push(submitComment);
-									// store.writeQuery({ query: CommentAppQuery, data });
-								},
+								variables: { teamId: parseInt(teamId), email: values.email },
 							});
-							if (response) {
-								onCloseAddChannelClick();
+							console.log(response);
+							const { ok, errors } = response.data.addTeamMember;
+							if (ok) {
+								onClose();
+								setSubmitting(false);
+							} else {
+								setSubmitting(false);
+								setErrors(normalizeErrors(errors));
 							}
 						} catch (err) {
-							values.name = "";
 							console.log(err);
 						}
 						setSubmitting(false);
@@ -70,13 +45,25 @@ function InvitePeopleModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 					}) => (
 						<Form>
 							<Form.Field>
+								{touched.email && errors.email ? (
+									<div
+										style={{
+											marginBottom: "13px",
+											display: "flex",
+											justifyContent: "center",
+											alignItems: "center",
+											color: "red",
+										}}>
+										{errors.email[0]}
+									</div>
+								) : null}
 								<Input
-									value={values.name}
+									value={values.email}
 									onChange={handleChange}
 									onBlur={handleBlur}
-									name='name'
+									name='email'
 									fluid
-									placeholder='Type a Channel Name'
+									placeholder="User's email"
 								/>
 							</Form.Field>
 							<Form.Field
@@ -87,7 +74,7 @@ function InvitePeopleModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 								}}>
 								<Button
 									disabled={isSubmitting}
-									onClick={onCloseAddChannelClick}
+									onClick={onClose}
 									color='red'
 									fluid>
 									Cancel
@@ -97,7 +84,7 @@ function InvitePeopleModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 									onClick={handleSubmit}
 									disabled={isSubmitting}
 									fluid>
-									Create Channel
+									Invite
 								</Button>
 							</Form.Field>
 						</Form>
@@ -108,16 +95,16 @@ function InvitePeopleModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 	);
 }
 
-const CREATE_CHANNEL = gql`
-	mutation createChannel($teamId: Int!, $name: String!) {
-		createChannel(teamId: $teamId, name: $name) {
+const ADD_TEAM_MEMBER = gql`
+	mutation addTeamMember($email: String!, $teamId: Int!) {
+		addTeamMember(email: $email, teamId: $teamId) {
 			ok
-			channel {
-				id
-				name
+			errors {
+				path
+				message
 			}
 		}
 	}
 `;
 
-export default graphql(CREATE_CHANNEL)(InvitePeopleModal);
+export default graphql(ADD_TEAM_MEMBER)(InvitePeopleModal);

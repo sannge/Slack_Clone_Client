@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import React from "react";
 import { Icon } from "semantic-ui-react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 const ChannelWrapper = styled.div`
 	grid-column: 2;
@@ -22,6 +22,9 @@ const SideBarList = styled.ul`
 	width: 100%;
 	list-style: none;
 	padding-left: 0px;
+	& .activeLink .sidebarlistitem {
+		background: #3e313c;
+	}
 `;
 
 const paddingLeft = `padding-left: 10px`;
@@ -51,12 +54,13 @@ const Green = styled.span`
 const Bubble = ({ on = true }) => (on ? <Green>●</Green> : "○");
 
 const channel = ({ id, name }, teamId) => (
-	<Link
+	<NavLink
+		activeClassName='activeLink'
 		className='link'
 		key={`channel-${id}`}
 		to={`/view-team/${teamId}/${id}`}>
-		<SideBarListItem># {name}</SideBarListItem>
-	</Link>
+		<SideBarListItem className='sidebarlistitem'># {name}</SideBarListItem>
+	</NavLink>
 );
 
 const user = ({ id, name }) => (
@@ -73,6 +77,7 @@ export default ({
 	onAddChannelClick,
 	teamId,
 	onInvitePeople,
+	isOwner,
 }) => (
 	<ChannelWrapper>
 		<PushRight>
@@ -88,17 +93,19 @@ export default ({
 						marginBottom: "5px",
 					}}>
 					Channel{" "}
-					<Icon
-						onClick={onAddChannelClick}
-						className='addChannelIcon'
-						style={{
-							fontSize: "1.3rem",
-							paddingLeft: "5px",
-							marginRight: "15px",
-							cursor: "pointer",
-						}}
-						name='plus circle'
-					/>
+					{isOwner && (
+						<Icon
+							onClick={onAddChannelClick}
+							className='addChannelIcon'
+							style={{
+								fontSize: "1.3rem",
+								paddingLeft: "5px",
+								marginRight: "15px",
+								cursor: "pointer",
+							}}
+							name='plus circle'
+						/>
+					)}
 				</SideBarListHeader>
 				{channels?.length > 0 && channels.map((c) => channel(c, teamId))}
 			</SideBarList>
@@ -110,13 +117,15 @@ export default ({
 				{users?.length > 0 && users.map(user)}
 			</SideBarList>
 		</div>
-		<div>
-			<a
-				style={{ padding: "10px" }}
-				href='#invite-people'
-				onClick={() => console.log("clicked")}>
-				+ Invite People
-			</a>
-		</div>
+		{isOwner && (
+			<div>
+				<a
+					style={{ padding: "10px" }}
+					href='#invite-people'
+					onClick={onInvitePeople}>
+					+ Invite People
+				</a>
+			</div>
+		)}
 	</ChannelWrapper>
 );

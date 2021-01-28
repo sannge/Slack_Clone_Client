@@ -6,6 +6,7 @@ import SendMessage from "../components/SendMessage";
 import Messages from "../components/Messages";
 import AppLayout from "../components/AppLayout";
 import Sidebar from "../containers/SideBar";
+import MessageContainer from "../containers/MessageContainer";
 
 import { graphql } from "@apollo/client/react/hoc";
 
@@ -38,9 +39,15 @@ function ViewTeam({
 	}
 	const team = allTeams[teamIdx];
 
-	const channelIdx = channelId
+	let channelIdx = channelId
 		? findIndex(team.channels, ["id", parseInt(channelId, 10)])
 		: 0;
+	if (channelIdx === -1) {
+		channelIdx = 0;
+		history.push(
+			`/view-team/${allTeams[0].id}/${team.channels[channelIdx].id}`
+		);
+	}
 	const channel = team.channels[channelIdx];
 
 	return (
@@ -48,20 +55,22 @@ function ViewTeam({
 			<Sidebar
 				teams={allTeams.map((t) => ({
 					id: t.id,
+					owner: t.owner,
 					letter: t.name.charAt(0).toUpperCase(),
 				}))}
 				allTeams={allTeams}
 				team={team}
 				currentTeamId={teamId}
 			/>
-			<Header channelName={channel.name} />
-			<Messages channelId={channel.id}>
-				<ul className='message-list'>
-					<li></li>
-					<li></li>
-				</ul>
-			</Messages>
-			<SendMessage channelName={channel.name} />
+			{channel && <Header channelName={channel.name} />}
+			{channel && (
+				<>
+					<MessageContainer channelId={channel.id} />
+				</>
+			)}
+			{channel && (
+				<SendMessage channelName={channel.name} channelId={channel.id} />
+			)}
 		</AppLayout>
 	);
 }
