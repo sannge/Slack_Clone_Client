@@ -3,7 +3,7 @@ import { Form, Input, Modal, Button } from "semantic-ui-react";
 import { Formik } from "formik";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { ALLTEAMSQUERY } from "../graphql/team";
+import { ME_QUERY } from "../graphql/team";
 import normalizeErrors from "../normalizeErrors";
 
 function AddChannelModal({ open, onCloseAddChannelClick, teamId, mutate }) {
@@ -23,26 +23,29 @@ function AddChannelModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 									if (!ok) {
 										return;
 									}
-									console.log(ok);
 									const dataCopy = {
-										...store.readQuery({ query: ALLTEAMSQUERY }),
+										...store.readQuery({ query: ME_QUERY }),
 									};
 
-									const teamIdx = dataCopy.allTeams.findIndex(
+									console.log(dataCopy);
+
+									const teamIdx = dataCopy.me.teams.findIndex(
 										(team) => team.id === parseInt(teamId)
 									);
 
-									const allTeamsCopy = [...dataCopy.allTeams];
+									const meCopy = { ...dataCopy.me };
+									const allTeamsCopy = [...meCopy.teams];
 									let teamCopy = { ...allTeamsCopy[teamIdx] };
 									const channelsCopy = [...teamCopy.channels];
 									channelsCopy.push(channel);
 
 									teamCopy.channels = channelsCopy;
 									allTeamsCopy[teamIdx] = teamCopy;
-									dataCopy.allTeams = allTeamsCopy;
+									meCopy.teams = allTeamsCopy;
+									dataCopy.me = meCopy;
 
 									store.writeQuery({
-										query: ALLTEAMSQUERY,
+										query: ME_QUERY,
 										data: dataCopy,
 									});
 									// data.comments.push(submitComment);

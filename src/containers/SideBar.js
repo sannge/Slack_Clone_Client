@@ -41,22 +41,12 @@ class Sidebar extends React.Component {
 	};
 
 	render() {
-		const { teams, currentTeamId, team } = this.props;
+		const { teams, currentTeamId, team, username } = this.props;
 
 		// console.log("ALL TEAMs: ", allTeams, loading);
 		// if (allTeams.length === 0) {
 		// 	return <Redirect to='/create-team' />;
 		// }
-
-		let username = "";
-		let isOwner = false;
-
-		try {
-			const token = localStorage.getItem("token");
-			const { user } = decode(token);
-			isOwner = user.id === team?.owner;
-			username = user.username;
-		} catch (err) {}
 
 		return (
 			<>
@@ -66,7 +56,7 @@ class Sidebar extends React.Component {
 					teamName={team?.name}
 					username={username}
 					teamId={team?.id}
-					isOwner={isOwner}
+					isOwner={team?.admin}
 					channels={team?.channels}
 					onAddChannelClick={this.handleAddChannelClick}
 					onInvitePeople={this.onInvitePeople}

@@ -10,12 +10,12 @@ import MessageContainer from "../containers/MessageContainer";
 
 import { graphql } from "@apollo/client/react/hoc";
 
-import { ALLTEAMSQUERY } from "../graphql/team";
+import { ME_QUERY } from "../graphql/team";
 
 import findIndex from "lodash/findIndex";
 
 function ViewTeam({
-	data: { loading, allTeams },
+	data: { loading, me },
 	history,
 	match: {
 		params: { teamId, channelId },
@@ -24,6 +24,8 @@ function ViewTeam({
 	if (loading) {
 		return null;
 	}
+
+	const { teams: allTeams, username } = me;
 
 	let teamIdx = teamId
 		? findIndex(allTeams, ["id", parseInt(teamId, 10)])
@@ -55,12 +57,13 @@ function ViewTeam({
 			<Sidebar
 				teams={allTeams.map((t) => ({
 					id: t.id,
-					owner: t.owner,
+					admin: t.admin,
 					letter: t.name.charAt(0).toUpperCase(),
 				}))}
 				allTeams={allTeams}
 				team={team}
 				currentTeamId={teamId}
+				username={username}
 			/>
 			{channel && <Header channelName={channel.name} />}
 			{channel && (
@@ -75,4 +78,4 @@ function ViewTeam({
 	);
 }
 
-export default graphql(ALLTEAMSQUERY)(ViewTeam);
+export default graphql(ME_QUERY)(ViewTeam);
