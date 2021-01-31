@@ -14,7 +14,7 @@ const SendMessageWrapper = styled.div`
 
 const ENTER_KEY = 13;
 
-const SendMessage = ({ channelName, mutate, channelId }) => (
+const SendMessage = ({ placeholder, onSubmit }) => (
 	<SendMessageWrapper>
 		<Formik
 			initialValues={{ message: "" }}
@@ -24,9 +24,10 @@ const SendMessage = ({ channelName, mutate, channelId }) => (
 					return;
 				}
 				try {
-					await mutate({
-						variables: { channelId, text: values.message },
-					});
+					await onSubmit(values.message);
+					// await mutate({
+					// 	variables: { channelId, text: values.message },
+					// });
 					resetForm();
 				} catch (err) {
 					console.log(err);
@@ -55,7 +56,7 @@ const SendMessage = ({ channelName, mutate, channelId }) => (
 							onChange={handleChange}
 							value={values.message}
 							fluid
-							placeholder={`Message #${channelName}`}
+							placeholder={`Message #${placeholder}`}
 						/>
 					</Form>
 				);
@@ -63,10 +64,4 @@ const SendMessage = ({ channelName, mutate, channelId }) => (
 		</Formik>
 	</SendMessageWrapper>
 );
-const SEND_MESSAGE = gql`
-	mutation($channelId: Int!, $text: String!) {
-		createMessage(channelId: $channelId, text: $text)
-	}
-`;
-
-export default graphql(SEND_MESSAGE)(SendMessage);
+export default SendMessage;

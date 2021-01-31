@@ -12,3 +12,9 @@ export const NEW_CHANNEL_MESSAGE = gql`
 		}
 	}
 `;
+
+export const SEND_MESSAGE = gql`
+	mutation($channelId: Int!, $text: String!) {
+		createMessage(channelId: $channelId, text: $text)
+	}
+`;

@@ -10,18 +10,18 @@ import MessageContainer from "../containers/MessageContainer";
 
 import { graphql } from "@apollo/client/react/hoc";
 
-import { useMutation } from "@apollo/client";
-
 import { ME_QUERY } from "../graphql/team";
+
+import { useMutation } from "@apollo/client";
 
 import findIndex from "lodash/findIndex";
 import { SEND_MESSAGE } from "../graphql/message";
 
-function ViewTeam({
+function DirectMessages({
 	data: { loading, me },
 	history,
 	match: {
-		params: { teamId, channelId },
+		params: { teamId, userId },
 	},
 }) {
 	const [createMessage] = useMutation(SEND_MESSAGE);
@@ -46,17 +46,6 @@ function ViewTeam({
 	}
 	const team = allTeams[teamIdx];
 
-	let channelIdx = channelId
-		? findIndex(team.channels, ["id", parseInt(channelId, 10)])
-		: 0;
-	if (channelIdx === -1) {
-		channelIdx = 0;
-		history.push(
-			`/view-team/${allTeams[0].id}/${team.channels[channelIdx].id}`
-		);
-	}
-	const channel = team.channels[channelIdx];
-
 	return (
 		<AppLayout>
 			<Sidebar
@@ -70,24 +59,16 @@ function ViewTeam({
 				currentTeamId={teamId}
 				username={username}
 			/>
-			{channel && <Header channelName={channel.name} />}
-			{channel && (
-				<>
-					<MessageContainer channelId={channel.id} />
-				</>
-			)}
-			{channel && (
-				<SendMessage
-					placeholder={channel.name}
-					onSubmit={async (text) => {
-						await createMessage({ variables: { text, channelId: channel.id } });
-					}}
-				/>
-			)}
+			{/* <Header channelName={channel.name} />
+			<MessageContainer channelId={channel.id} /> */}
+			<SendMessage
+				onSubmit={() => console.log("awesome!")}
+				placeholder={userId}
+			/>
 		</AppLayout>
 	);
 }
 
 export default graphql(ME_QUERY, { options: { fetchPolicy: "network-only" } })(
-	ViewTeam
+	DirectMessages
 );

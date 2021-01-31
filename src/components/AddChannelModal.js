@@ -15,6 +15,9 @@ function AddChannelModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 					initialValues={{ name: "" }}
 					onSubmit={async (values, { setSubmitting }) => {
 						let response;
+						if (values.name.trim() === "") {
+							return;
+						}
 						try {
 							response = await mutate({
 								variables: { teamId: parseInt(teamId), name: values.name },

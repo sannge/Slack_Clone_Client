@@ -12,6 +12,7 @@ import Login from "./Login";
 import Team from "./CreateTeam";
 import ViewTeam from "./ViewTeam";
 import decode from "jwt-decode";
+import DirectMessages from "./DirectMessages";
 
 const isAuthenticated = () => {
 	const token = localStorage.getItem("token");
@@ -54,6 +55,11 @@ function RouterIndex() {
 					path='/view-team/:teamId?/:channelId?'
 					exact
 					component={ViewTeam}
+				/>
+				<PrivateRoute
+					path='/view-team/:teamId/:userId'
+					exact
+					component={DirectMessages}
 				/>
 				<PrivateRoute path='/create-team' exact component={Team} />
 			</Switch>
