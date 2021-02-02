@@ -26,6 +26,7 @@ function InvitePeopleModal({ open, onClose, teamId, mutate }) {
 								setSubmitting(false);
 							} else {
 								setSubmitting(false);
+
 								setErrors(normalizeErrors(errors));
 							}
 						} catch (err) {
@@ -57,6 +58,19 @@ function InvitePeopleModal({ open, onClose, teamId, mutate }) {
 										{errors.email[0]}
 									</div>
 								) : null}
+								{touched.email && errors.name ? (
+									<div
+										style={{
+											marginBottom: "13px",
+											display: "flex",
+											justifyContent: "center",
+											alignItems: "center",
+											color: "red",
+										}}>
+										{errors.name[0]}
+									</div>
+								) : null}
+
 								<Input
 									value={values.email}
 									onChange={handleChange}

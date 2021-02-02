@@ -3,6 +3,8 @@ import React from "react";
 import { Icon } from "semantic-ui-react";
 import { NavLink } from "react-router-dom";
 
+import { withRouter } from "react-router-dom";
+
 const ChannelWrapper = styled.div`
 	grid-column: 2;
 	grid-row: 1 / 4;
@@ -31,7 +33,8 @@ const paddingLeft = `padding-left: 10px`;
 
 const SideBarListItem = styled.li`
 	margin-left: 5px;
-	padding: 2px;
+	padding: 5px;
+	color: #999;
 	${paddingLeft};
 	cursor: pointer;
 	&:hover {
@@ -53,9 +56,12 @@ const Green = styled.span`
 
 const Bubble = ({ on = true }) => (on ? <Green>●</Green> : "○");
 
-const channel = ({ id, name }, teamId) => (
+const channel = ({ id, name }, teamId, location) => (
 	<NavLink
 		activeClassName='activeLink'
+		isActive={() =>
+			location.pathname.search(`view-team/${teamId}/${id}`) !== -1
+		}
 		className='link'
 		key={`channel-${id}`}
 		to={`/view-team/${teamId}/${id}`}>
@@ -63,21 +69,31 @@ const channel = ({ id, name }, teamId) => (
 	</NavLink>
 );
 
-const user = ({ id, name }) => (
-	<SideBarListItem key={`user-${id}`}>
-		<Bubble /> {name}
-	</SideBarListItem>
+const user = ({ id, username }, teamId, loggedInUserName) => (
+	<div key={`direct-message-${id}`}>
+		{loggedInUserName !== username && (
+			<NavLink
+				activeClassName='activeLink'
+				to={`/view-team/user/${teamId}/${id}`}>
+				<SideBarListItem className='sidebarlistitem' key={`user-${id}`}>
+					<Bubble /> {username}
+				</SideBarListItem>
+			</NavLink>
+		)}
+	</div>
 );
 
-export default ({
+const Channels = ({
 	teamName,
 	username,
 	channels,
 	users,
 	onAddChannelClick,
+	onDirectMessageClick,
 	teamId,
 	onInvitePeople,
 	isOwner,
+	location,
 }) => (
 	<ChannelWrapper>
 		<PushRight>
@@ -107,14 +123,33 @@ export default ({
 						/>
 					)}
 				</SideBarListHeader>
-				{channels?.length > 0 && channels.map((c) => channel(c, teamId))}
+				{channels?.length > 0 &&
+					channels.map((c) => channel(c, teamId, location))}
 			</SideBarList>
 		</div>
 
 		<div>
 			<SideBarList>
-				<SideBarListHeader>Direct Messages</SideBarListHeader>
-				{users?.length > 0 && users.map(user)}
+				<SideBarListHeader
+					style={{
+						display: "flex",
+						justifyContent: "space-between",
+						marginBottom: "5px",
+					}}>
+					Direct Messages{" "}
+					<Icon
+						onClick={onDirectMessageClick}
+						className='addChannelIcon'
+						style={{
+							fontSize: "1.3rem",
+							paddingLeft: "5px",
+							marginRight: "15px",
+							cursor: "pointer",
+						}}
+						name='plus circle'
+					/>
+				</SideBarListHeader>
+				{users?.length > 0 && users.map((u) => user(u, teamId, username))}
 			</SideBarList>
 		</div>
 		{isOwner && (
@@ -129,3 +164,5 @@ export default ({
 		)}
 	</ChannelWrapper>
 );
+
+export default withRouter(Channels);

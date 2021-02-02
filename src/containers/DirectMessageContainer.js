@@ -1,18 +1,17 @@
 import React from "react";
 import Messages from "../components/Messages";
 
-import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 
 import { Comment } from "semantic-ui-react";
-import { NEW_CHANNEL_MESSAGE } from "../graphql/message";
+import { NEW_DIRECT_MESSAGE, DIRECT_MESSAGE_QUERY } from "../graphql/message";
 
 import moment from "moment";
 import Loading from "../components/Loading";
 
-class MessageContainer extends React.Component {
+class DirectMessageContainer extends React.Component {
 	componentWillMount() {
-		this.unsubscribe = this.subscribe(this.props.channelId);
+		this.unsubscribe = this.subscribe(this.props.teamId, this.props.userId);
 	}
 
 	componentWillUnmount() {
@@ -21,33 +20,30 @@ class MessageContainer extends React.Component {
 		}
 	}
 
-	componentWillReceiveProps(newProps) {
-		const { channelId } = newProps;
-		if (this.props.channelId !== channelId) {
-			console.log("props: ", channelId);
+	componentWillReceiveProps({ teamId, userId }) {
+		if (this.props.teamId !== teamId || this.props.userId !== userId) {
 			//if not unsubsribe, everytime,go to other and come back to this
 			//channel, it will subscribe multiple times
 			if (this.unsubscribe) {
 				this.unsubscribe();
 			}
-			this.unsubscribe = this.subscribe(channelId);
+			this.unsubscribe = this.subscribe(teamId, userId);
 		}
 	}
 
-	subscribe = (channelId) =>
+	subscribe = (teamId, userId) =>
 		this.props.data.subscribeToMore({
-			document: NEW_CHANNEL_MESSAGE,
-			variables: { channelId },
+			document: NEW_DIRECT_MESSAGE,
+			variables: { teamId: parseInt(teamId), userId: parseInt(userId) },
 			updateQuery: (prev, { subscriptionData }) => {
-				console.log(subscriptionData);
 				if (!subscriptionData) {
 					return prev;
 				}
 				return {
 					...prev,
-					getMessages: [
-						...prev.getMessages,
-						subscriptionData.data.newChannelMessage,
+					directMessages: [
+						...prev.directMessages,
+						subscriptionData.data.newDirectMessage,
 					],
 				};
 			},
@@ -55,9 +51,18 @@ class MessageContainer extends React.Component {
 
 	render() {
 		const {
-			channelId,
-			data: { loading, getMessages },
+			teamId,
+			userId,
+			data: { loading, directMessages, error },
 		} = this.props;
+		if (loading) {
+			return null;
+		}
+
+		if (error) {
+			console.log(error);
+		}
+		console.log(directMessages);
 		return (
 			<div>
 				{loading ? (
@@ -72,12 +77,12 @@ class MessageContainer extends React.Component {
 						<Loading size={30} />
 					</div>
 				) : (
-					<Messages channelId={channelId}>
+					<Messages>
 						<Comment.Group>
-							{getMessages.map((m) => (
-								<Comment key={`message-${m.id}`}>
+							{directMessages?.map((m) => (
+								<Comment key={`direct-message-${m.id}`}>
 									<Comment.Content>
-										<Comment.Author as='a'>{m.user.username}</Comment.Author>
+										<Comment.Author as='a'>{m.sender?.username}</Comment.Author>
 										<Comment.Metadata>
 											<div>
 												{moment(m.createdAt).format("MMMM Do YYYY, h:mm:ss a")}
@@ -98,23 +103,12 @@ class MessageContainer extends React.Component {
 	}
 }
 
-const GET_MESSAGES = gql`
-	query getMessages($channelId: Int!) {
-		getMessages(channelId: $channelId) {
-			id
-			text
-			user {
-				username
-			}
-			createdAt
-		}
-	}
-`;
-export default graphql(GET_MESSAGES, {
-	variables: (props) => ({
-		channelId: props.channelId,
-	}),
-	options: {
+export default graphql(DIRECT_MESSAGE_QUERY, {
+	options: (props) => ({
+		variables: {
+			teamId: parseInt(props.teamId),
+			userId: parseInt(props.userId),
+		},
 		fetchPolicy: "network-only",
-	},
-})(MessageContainer);
+	}),
+})(DirectMessageContainer);

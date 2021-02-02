@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
 
+import { withRouter } from "react-router-dom";
+
 const TeamWrapper = styled.div`
 	grid-column: 1;
 	grid-row: 1 / 4;
@@ -43,15 +45,32 @@ const EachTeamItem = styled.div`
 	}
 `;
 
-const team = ({ id, letter }, index) => (
+const team = ({ id, letter }, location) => (
 	<EachTeamItem key={`team-${id}`}>
-		<NavLink activeClassName='active' to={`/view-team/${id}`}>
+		<NavLink
+			isActive={() =>
+				location.pathname.search(`view-team/${id}`) !== -1 ||
+				location.pathname.search(`view-team/user/${id}`) !== -1
+			}
+			activeClassName='active'
+			to={`/view-team/${id}`}>
 			<TeamListItem className='listItem'>{letter}</TeamListItem>
 		</NavLink>
 	</EachTeamItem>
 );
-export default ({ teams }) => (
+const Teams = ({ teams, location }) => (
 	<TeamWrapper>
-		<TeamList>{teams.map(team)}</TeamList>
+		<TeamList>
+			<div>
+				<NavLink to='/create-team'>
+					<EachTeamItem>
+						<TeamListItem style={{ fontSize: "3rem" }}>+</TeamListItem>
+					</EachTeamItem>
+				</NavLink>
+				{teams.map((t) => team(t, location))}
+			</div>
+		</TeamList>
 	</TeamWrapper>
 );
+
+export default withRouter(Teams);

@@ -18,7 +18,7 @@ import findIndex from "lodash/findIndex";
 import { SEND_MESSAGE } from "../graphql/message";
 
 function ViewTeam({
-	data: { loading, me },
+	data: { loading, me, error },
 	history,
 	match: {
 		params: { teamId, channelId },
@@ -28,6 +28,9 @@ function ViewTeam({
 
 	if (loading) {
 		return null;
+	}
+	if (error) {
+		console.log(error);
 	}
 
 	const { teams: allTeams, username } = me;

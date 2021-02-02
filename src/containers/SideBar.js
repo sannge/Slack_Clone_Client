@@ -1,15 +1,15 @@
 import React from "react";
-import decode from "jwt-decode";
-
 import Teams from "../components/Teams";
 import Channels from "../components/Channels";
 import AddChannelModal from "../components/AddChannelModal";
 import InvitePeopleModal from "../components/InvitePeopleModal";
+import DirectMessageModal from "../components/DirectMessageModal";
 
 class Sidebar extends React.Component {
 	state = {
 		openAddChannelModal: false,
 		openInvitePeopleModal: false,
+		openDirectMessageModal: false,
 	};
 
 	handleAddChannelClick = (e) => {
@@ -24,6 +24,19 @@ class Sidebar extends React.Component {
 			e.preventDefault();
 		}
 		this.setState({ openAddChannelModal: false });
+	};
+	handleOpenDirectMessageModal = (e) => {
+		if (e) {
+			e.preventDefault();
+		}
+		this.setState({ openDirectMessageModal: true });
+	};
+
+	handleCloseDirectMessageModal = (e) => {
+		if (e) {
+			e.preventDefault();
+		}
+		this.setState({ openDirectMessageModal: false });
 	};
 
 	onInvitePeople = (e) => {
@@ -47,7 +60,6 @@ class Sidebar extends React.Component {
 		// if (allTeams.length === 0) {
 		// 	return <Redirect to='/create-team' />;
 		// }
-
 		return (
 			<>
 				<Teams teams={teams} />
@@ -58,8 +70,10 @@ class Sidebar extends React.Component {
 					teamId={team?.id}
 					isOwner={team?.admin}
 					channels={team?.channels}
+					users={team?.directMessageMembers}
 					onAddChannelClick={this.handleAddChannelClick}
 					onInvitePeople={this.onInvitePeople}
+					onDirectMessageClick={this.handleOpenDirectMessageModal}
 				/>
 
 				<AddChannelModal
@@ -72,6 +86,12 @@ class Sidebar extends React.Component {
 					teamId={currentTeamId}
 					open={this.state.openInvitePeopleModal}
 					onClose={this.onInvitePeopleClose}
+				/>
+
+				<DirectMessageModal
+					open={this.state.openDirectMessageModal}
+					onClose={this.handleCloseDirectMessageModal}
+					teamId={currentTeamId}
 				/>
 			</>
 		);

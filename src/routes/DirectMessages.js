@@ -6,28 +6,68 @@ import SendMessage from "../components/SendMessage";
 import Messages from "../components/Messages";
 import AppLayout from "../components/AppLayout";
 import Sidebar from "../containers/SideBar";
-import MessageContainer from "../containers/MessageContainer";
+import DirectMessageContainer from "../containers/DirectMessageContainer";
 
 import { graphql } from "@apollo/client/react/hoc";
 
 import { ME_QUERY } from "../graphql/team";
 
-import { useMutation } from "@apollo/client";
+import { useMutation, gql } from "@apollo/client";
 
 import findIndex from "lodash/findIndex";
-import { SEND_MESSAGE } from "../graphql/message";
+import { CREATE_DIRECT_MESSAGE } from "../graphql/message";
 
 function DirectMessages({
-	data: { loading, me },
+	data: { loading, me, getUser, error },
 	history,
 	match: {
 		params: { teamId, userId },
 	},
 }) {
-	const [createMessage] = useMutation(SEND_MESSAGE);
+	const [createDirectMessage] = useMutation(CREATE_DIRECT_MESSAGE, {
+		update: (store) => {
+			const dataCopy = {
+				...store.readQuery({ query: ME_QUERY }),
+			};
+			const data = store.readQuery({ query: ME_QUERY });
+
+			console.log("DATA::: ", data);
+
+			const teamIdx = dataCopy.me.teams.findIndex(
+				(team) => team.id === parseInt(teamId)
+			);
+
+			const meCopy = { ...dataCopy.me };
+			const allTeamsCopy = [...meCopy.teams];
+			const teamIdx2 = findIndex(allTeamsCopy, ["id", team.id]);
+			let teamCopy = { ...allTeamsCopy[teamIdx2] };
+			const directMessageMembersCopy = [...teamCopy.directMessageMembers];
+
+			const notAlreadyThere = directMessageMembersCopy.every(
+				(member) => member.id !== parseInt(userId, 10)
+			);
+			if (notAlreadyThere) {
+				directMessageMembersCopy.push({
+					__typename: "User",
+					id: userId,
+					username: getUser.username,
+				});
+
+				teamCopy.directMessageMembers = directMessageMembersCopy;
+				allTeamsCopy[teamIdx2] = teamCopy;
+				meCopy.teams = allTeamsCopy;
+				dataCopy.me = meCopy;
+				console.log(dataCopy);
+				store.writeQuery({ query: ME_QUERY, data: dataCopy });
+			}
+		},
+	});
 
 	if (loading) {
 		return null;
+	}
+	if (error) {
+		console.log(error);
 	}
 
 	const { teams: allTeams, username } = me;
@@ -46,6 +86,25 @@ function DirectMessages({
 	}
 	const team = allTeams[teamIdx];
 
+	let userIdExists = false;
+	team?.directMessageMembers.forEach((m) => {
+		if (m.id === userId) {
+			userIdExists = true;
+			return;
+		}
+	});
+
+	if (!parseInt(userId) || userIdExists) {
+		// if (teamMemberCount === 0) {
+
+		// } else {
+		// 	history.push(
+		// 		`/view-team/user/${team?.id}/${team?.directMessageMembers[0].id}`
+		// 	);
+		// }
+		history.push(`/view-team/user/${team?.id}`);
+	}
+
 	return (
 		<AppLayout>
 			<Sidebar
@@ -59,16 +118,53 @@ function DirectMessages({
 				currentTeamId={teamId}
 				username={username}
 			/>
-			{/* <Header channelName={channel.name} />
-			<MessageContainer channelId={channel.id} /> */}
+			<Header channelName={getUser.username} />
+			<DirectMessageContainer teamId={teamId} userId={userId} />
 			<SendMessage
-				onSubmit={() => console.log("awesome!")}
+				onSubmit={async (text) => {
+					await createDirectMessage({
+						variables: {
+							teamId: parseInt(teamId),
+							text,
+							receiverId: parseInt(userId),
+						},
+					});
+				}}
 				placeholder={userId}
 			/>
 		</AppLayout>
 	);
 }
 
-export default graphql(ME_QUERY, { options: { fetchPolicy: "network-only" } })(
-	DirectMessages
-);
+const directMessageMeQuery = gql`
+	query($userId: Int!) {
+		getUser(userId: $userId) {
+			username
+		}
+
+		me {
+			id
+			username
+			teams {
+				id
+				name
+				admin
+				directMessageMembers {
+					id
+					username
+				}
+				channels {
+					id
+					name
+				}
+			}
+		}
+	}
+`;
+
+export default graphql(directMessageMeQuery, {
+	options: (props) => ({
+		variables: { userId: parseInt(props.match.params.userId, 10) },
+		fetchPolicy: "network-only",
+	}),
+})(DirectMessages);

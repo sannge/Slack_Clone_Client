@@ -57,8 +57,7 @@ function RouterIndex() {
 					component={ViewTeam}
 				/>
 				<PrivateRoute
-					path='/view-team/:teamId/:userId'
-					exact
+					path='/view-team/user/:teamId/:userId'
 					component={DirectMessages}
 				/>
 				<PrivateRoute path='/create-team' exact component={Team} />

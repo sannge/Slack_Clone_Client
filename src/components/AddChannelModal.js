@@ -81,6 +81,7 @@ function AddChannelModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 						handleBlur,
 						handleSubmit,
 						isSubmitting,
+
 						/* and other goodies */
 					}) => (
 						<Form>
