@@ -5,8 +5,8 @@ export default styled.div`
 	grid-row: 2;
 	padding: 20px;
 	padding-bottom: 0px;
-	height: 90vh;
 	display: flex;
+	height: ${(props) => props.height}vh;
 	flex-direction: column-reverse;
 	overflow-y: auto;
 `;

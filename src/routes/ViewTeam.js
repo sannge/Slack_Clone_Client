@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Channels from "../components/Channels";
 import Teams from "../components/Teams";
 import Header from "../components/Header";
@@ -24,7 +24,20 @@ function ViewTeam({
 		params: { teamId, channelId },
 	},
 }) {
-	const [createMessage] = useMutation(SEND_MESSAGE);
+	const [files, setFiles] = useState([]);
+
+	const onDrop = (arr) => {
+		if (files.length > 0) {
+			const copyFiles = [...files];
+			setFiles(copyFiles.concat(arr));
+		} else {
+			console.log(arr[0].name);
+			setFiles(arr);
+		}
+	};
+	const [createMessage, { loading: createMessageLoading }] = useMutation(
+		SEND_MESSAGE
+	);
 
 	if (loading) {
 		return null;
@@ -33,7 +46,7 @@ function ViewTeam({
 		console.log(error);
 	}
 
-	const { teams: allTeams, username } = me;
+	const { id: currentUserId, teams: allTeams, username } = me;
 
 	let teamIdx = teamId
 		? findIndex(allTeams, ["id", parseInt(teamId, 10)])
@@ -63,6 +76,7 @@ function ViewTeam({
 	return (
 		<AppLayout>
 			<Sidebar
+				currentUserId={currentUserId}
 				teams={allTeams.map((t) => ({
 					id: t.id,
 					admin: t.admin,
@@ -76,14 +90,25 @@ function ViewTeam({
 			{channel && <Header channelName={channel.name} />}
 			{channel && (
 				<>
-					<MessageContainer channelId={channel.id} />
+					<MessageContainer
+						createMessageLoading={createMessageLoading}
+						channelId={channel.id}
+						height={files.length > 0 ? 70 : 80}
+					/>
 				</>
 			)}
 			{channel && (
 				<SendMessage
 					placeholder={channel.name}
+					onDrop={onDrop}
+					files={files}
+					setFiles={setFiles}
+					createMessageLoading={createMessageLoading}
 					onSubmit={async (text) => {
-						await createMessage({ variables: { text, channelId: channel.id } });
+						await createMessage({
+							variables: { text, channelId: channel.id, files: files },
+						});
+						setFiles([]);
 					}}
 				/>
 			)}

@@ -8,7 +8,7 @@ import { GET_TEAM_MEMBERS } from "../graphql/team";
 
 import { withRouter } from "react-router-dom";
 
-function DirectMessageModal({ open, onClose, teamId, history }) {
+function DirectMessageModal({ open, onClose, teamId, history, username }) {
 	const { data, loading, error } = useQuery(GET_TEAM_MEMBERS, {
 		variables: {
 			teamId: parseInt(teamId),
@@ -37,33 +37,40 @@ function DirectMessageModal({ open, onClose, teamId, history }) {
 								}) => (
 									<div>
 										<Input
-											{...getInputProps({ placeholder: "Favorite color? " })}
+											{...getInputProps({
+												placeholder: "Choose the person...",
+											})}
 											fluid
 										/>
 										{isOpen ? (
 											<div style={{ border: "1px solid #ccc" }}>
 												{data?.getTeamMembers
-													.filter(
-														(item) =>
+													.filter((item) => {
+														console.log("item: ", item.username, username);
+														return (
 															!inputValue ||
 															item.username
 																.toLocaleLowerCase()
 																.includes(inputValue.toLocaleLowerCase())
-													)
+														);
+													})
 													.map((item, index) => (
-														<div
-															{...getItemProps({ item: item })}
-															key={item.id}
-															style={{
-																backgroundColor:
-																	highlightedIndex === index
-																		? "lightgray"
-																		: "white",
-																fontWeight:
-																	selectedItem === item ? "bold" : "normal",
-																padding: "7px",
-															}}>
-															{item.username}
+														<div key={item.id}>
+															{item.username !== username && (
+																<div
+																	{...getItemProps({ item: item })}
+																	style={{
+																		backgroundColor:
+																			highlightedIndex === index
+																				? "lightgray"
+																				: "white",
+																		fontWeight:
+																			selectedItem === item ? "bold" : "normal",
+																		padding: "7px",
+																	}}>
+																	{item.username}
+																</div>
+															)}
 														</div>
 													))}
 											</div>

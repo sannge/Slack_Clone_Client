@@ -1,10 +1,11 @@
 import {
 	ApolloClient,
-	createHttpLink,
 	InMemoryCache,
 	ApolloLink,
 	split,
+	createHttpLink,
 } from "@apollo/client";
+import { createUploadLink } from "apollo-upload-client";
 
 import { setContext } from "@apollo/client/link/context";
 
@@ -12,7 +13,7 @@ import { getMainDefinition } from "@apollo/client/utilities";
 
 import { WebSocketLink } from "@apollo/client/link/ws";
 
-let httpLink = createHttpLink({
+let httpLink = createUploadLink({
 	uri: "http://localhost:8080/graphql",
 });
 

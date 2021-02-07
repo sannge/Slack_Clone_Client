@@ -54,7 +54,7 @@ class Sidebar extends React.Component {
 	};
 
 	render() {
-		const { teams, currentTeamId, team, username } = this.props;
+		const { teams, currentTeamId, team, username, currentUserId } = this.props;
 
 		// console.log("ALL TEAMs: ", allTeams, loading);
 		// if (allTeams.length === 0) {
@@ -77,13 +77,14 @@ class Sidebar extends React.Component {
 				/>
 
 				<AddChannelModal
-					teamId={currentTeamId}
+					teamId={team?.id}
 					open={this.state.openAddChannelModal}
 					onCloseAddChannelClick={this.handleCloseAddChannelModal}
+					currentTeamId={currentUserId}
 				/>
 
 				<InvitePeopleModal
-					teamId={currentTeamId}
+					teamId={team?.id}
 					open={this.state.openInvitePeopleModal}
 					onClose={this.onInvitePeopleClose}
 				/>
@@ -91,7 +92,8 @@ class Sidebar extends React.Component {
 				<DirectMessageModal
 					open={this.state.openDirectMessageModal}
 					onClose={this.handleCloseDirectMessageModal}
-					teamId={currentTeamId}
+					teamId={team?.id}
+					username={username}
 				/>
 			</>
 		);

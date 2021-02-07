@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Channels from "../components/Channels";
 import Teams from "../components/Teams";
 import Header from "../components/Header";
@@ -24,7 +24,20 @@ function DirectMessages({
 		params: { teamId, userId },
 	},
 }) {
-	const [createDirectMessage] = useMutation(CREATE_DIRECT_MESSAGE, {
+	const [files, setFiles] = useState([]);
+
+	const onDrop = (arr) => {
+		if (files.length > 0) {
+			const copyFiles = [...files];
+			setFiles(copyFiles.concat(arr));
+		} else {
+			setFiles(arr);
+		}
+	};
+	const [
+		createDirectMessage,
+		{ loading: createDirectMessageLoading },
+	] = useMutation(CREATE_DIRECT_MESSAGE, {
 		update: (store) => {
 			const dataCopy = {
 				...store.readQuery({ query: ME_QUERY }),
@@ -119,18 +132,30 @@ function DirectMessages({
 				username={username}
 			/>
 			<Header channelName={getUser.username} />
-			<DirectMessageContainer teamId={teamId} userId={userId} />
+			<DirectMessageContainer
+				teamId={teamId}
+				userId={userId}
+				height={files.length > 0 ? 70 : 80}
+				createDirectMessageLoading={createDirectMessageLoading}
+			/>
 			<SendMessage
 				onSubmit={async (text) => {
 					await createDirectMessage({
 						variables: {
 							teamId: parseInt(teamId),
-							text,
+							text: text || undefined,
+							files,
 							receiverId: parseInt(userId),
 						},
 					});
+
+					setFiles([]);
 				}}
-				placeholder={userId}
+				placeholder={getUser.username}
+				onDrop={onDrop}
+				createMessageLoading={createDirectMessageLoading}
+				files={files}
+				setFiles={setFiles}
 			/>
 		</AppLayout>
 	);

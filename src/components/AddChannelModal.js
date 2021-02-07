@@ -1,18 +1,25 @@
 import React from "react";
-import { Form, Input, Modal, Button } from "semantic-ui-react";
+import { Form, Input, Modal, Button, Checkbox } from "semantic-ui-react";
 import { Formik } from "formik";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { ME_QUERY } from "../graphql/team";
 import normalizeErrors from "../normalizeErrors";
+import MultiSelectUsers from "./MultiSelectUsers";
 
-function AddChannelModal({ open, onCloseAddChannelClick, teamId, mutate }) {
+function AddChannelModal({
+	open,
+	onCloseAddChannelClick,
+	teamId,
+	mutate,
+	currentUserId,
+}) {
 	return (
 		<Modal open={open} onClose={onCloseAddChannelClick}>
 			<Modal.Header>Add Channel</Modal.Header>
 			<Modal.Content>
 				<Formik
-					initialValues={{ name: "" }}
+					initialValues={{ members: [], public: true, name: "" }}
 					onSubmit={async (values, { setSubmitting }) => {
 						let response;
 						if (values.name.trim() === "") {
@@ -20,7 +27,12 @@ function AddChannelModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 						}
 						try {
 							response = await mutate({
-								variables: { teamId: parseInt(teamId), name: values.name },
+								variables: {
+									teamId: parseInt(teamId),
+									name: values.name,
+									public: values.public,
+									members: values.members,
+								},
 								update: (store, { data: { createChannel } }) => {
 									const { ok, channel } = createChannel;
 									if (!ok) {
@@ -81,6 +93,7 @@ function AddChannelModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 						handleBlur,
 						handleSubmit,
 						isSubmitting,
+						setFieldValue,
 
 						/* and other goodies */
 					}) => (
@@ -97,6 +110,34 @@ function AddChannelModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 									placeholder='Type a Channel Name'
 								/>
 							</Form.Field>
+							<Form.Field>
+								{" "}
+								<Checkbox
+									toggle
+									checked={!values.public}
+									label='Private Channel'
+									onChange={(e, { checked }) => {
+										setFieldValue("public", !checked);
+										// setFieldValue("members", []);
+									}}
+								/>
+							</Form.Field>
+							<Form.Field>
+								{!values.public && (
+									<div>
+										<MultiSelectUsers
+											value={values.members}
+											teamId={teamId}
+											currentUserId={currentUserId}
+											handleChange={(e, { value }) =>
+												setFieldValue("members", value)
+											}
+											placeholder='Select members to invite'
+										/>
+									</div>
+								)}
+							</Form.Field>
+
 							<Form.Field
 								style={{
 									display: "flex",
@@ -127,8 +168,18 @@ function AddChannelModal({ open, onCloseAddChannelClick, teamId, mutate }) {
 }
 
 const CREATE_CHANNEL = gql`
-	mutation createChannel($teamId: Int!, $name: String!) {
-		createChannel(teamId: $teamId, name: $name) {
+	mutation createChannel(
+		$teamId: Int!
+		$name: String!
+		$public: Boolean
+		$members: [Int!]
+	) {
+		createChannel(
+			teamId: $teamId
+			name: $name
+			public: $public
+			members: $members
+		) {
 			ok
 			channel {
 				id
