@@ -1,17 +1,34 @@
-import React from "react";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
+import React, { useEffect } from "react";
+import NavBar from "../components/NavBar";
+import HeroSection from "../components/HeroSection";
+import HeroSection2 from "../components/HeroSection2";
+import HeroSection3 from "../components/HeroSection3";
+import HeroSection4 from "../components/HeroSection4";
+import Footer from "../components/Footer";
 
-const Home = ({ data: { loading, allUsers, error } }) =>
-	loading ? null : allUsers.map((u) => <h1 key={u.id}>{u.email}</h1>);
+const Home = () => {
+	return (
+		<div>
+			<div>
+				<NavBar />
+			</div>
+			<div>
+				<HeroSection />
+			</div>
+			<div>
+				<HeroSection2 />
+			</div>
+			<div>
+				<HeroSection3 />
+			</div>
+			<div>
+				<HeroSection4 />
+			</div>
+			<div>
+				<Footer />
+			</div>
+		</div>
+	);
+};
 
-const ALLUSERSQUERY = gql`
-	{
-		allUsers {
-			id
-			email
-		}
-	}
-`;
-
-export default graphql(ALLUSERSQUERY)(Home);
+export default Home;

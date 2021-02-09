@@ -10,6 +10,7 @@ import {
 
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
+import { Link } from "react-router-dom";
 
 class Register extends React.Component {
 	state = {
@@ -134,6 +135,18 @@ class Register extends React.Component {
 						Submit
 					</Button>
 				</Form>
+				<div
+					style={{
+						marginTop: "15px",
+						width: "100%",
+					}}>
+					<span style={{ display: "flex", justifyContent: "center" }}>
+						<p style={{ marginRight: "10px" }}> Already have an account?</p>
+						<Link to='/login'>
+							<p>Sign in Here</p>
+						</Link>
+					</span>
+				</div>
 			</Container>
 		);
 	}

@@ -65,6 +65,11 @@ function RouterIndex() {
 					component={DirectMessages}
 				/>
 				<PrivateRoute path='/create-team' exact component={Team} />
+				{isAuthenticated() ? (
+					<Redirect to='/view-team/:teamId?/:channelId?' />
+				) : (
+					<Redirect to='/' />
+				)}
 			</Switch>
 		</Router>
 	);

@@ -24,7 +24,7 @@ class DirectMessageContainer extends React.Component {
 		}
 	}
 
-	componentWillReceiveProps({ teamId, userId }) {
+	componentWillReceiveProps({ teamId, userId, data: { directMessages } }) {
 		if (this.props.teamId !== teamId || this.props.userId !== userId) {
 			//if not unsubsribe, everytime,go to other and come back to this
 			//channel, it will subscribe multiple times
@@ -32,6 +32,25 @@ class DirectMessageContainer extends React.Component {
 				this.unsubscribe();
 			}
 			this.unsubscribe = this.subscribe(teamId, userId);
+		}
+		if (
+			// this.scroller &&
+			this.props.data.directMessages &&
+			directMessages &&
+			this.props.data.directMessages.length !== directMessages.length
+		) {
+			// console.log(
+			// 	"DANG!",
+			// 	this.props?.data?.getMessages?.length,
+			// 	getMessages?.length
+			// );
+			// console.log(this.scroller);
+			setTimeout(() => {
+				console.log("GODDAMN:", this.scroller);
+				if (this.scroller) {
+					this.scroller.scrollTop = this.fetchMoreScroll;
+				}
+			}, 120);
 		}
 	}
 
@@ -43,6 +62,13 @@ class DirectMessageContainer extends React.Component {
 				if (!subscriptionData) {
 					return prev;
 				}
+				if (this.scrollRef) {
+					this.scrollRef.scrollIntoView({
+						behavior: "smooth",
+						block: "end",
+						inline: "nearest",
+					});
+				}
 				return {
 					...prev,
 					directMessages: [
@@ -52,6 +78,50 @@ class DirectMessageContainer extends React.Component {
 				};
 			},
 		});
+
+	handleScroll = () => {
+		const {
+			data: { directMessages, fetchMore, loading },
+			teamId,
+			userId,
+		} = this.props;
+
+		if (
+			this.scroller &&
+			!loading &&
+			this.scroller.scrollHeight -
+				Math.abs(this.scroller.scrollTop - window.innerHeight) <
+				0 &&
+			this.state.hasMoreItem &&
+			directMessages.length >= 35
+		) {
+			this.fetchMoreScroll = this.scroller.scrollTop;
+			fetchMore({
+				variables: {
+					cursor: directMessages[directMessages.length - 1].createdAt,
+					teamId: parseInt(this.props.teamId),
+					userId: parseInt(this.props.userId),
+				},
+				updateQuery: (previousResult, { fetchMoreResult }) => {
+					if (!fetchMoreResult) {
+						return previousResult;
+					}
+
+					if (fetchMoreResult.directMessages.length < 35) {
+						this.setState({ hasMoreItem: false });
+					}
+
+					return {
+						...previousResult,
+						directMessages: [
+							...previousResult.directMessages,
+							...fetchMoreResult.directMessages,
+						],
+					};
+				},
+			});
+		}
+	};
 
 	render() {
 		console.log(this.props.height);
@@ -123,88 +193,67 @@ class DirectMessageContainer extends React.Component {
 								</div>
 							)}
 						</div>
-						<Messages height={this.props.height}>
+
+						<Messages
+							onScroll={this.handleScroll}
+							ref={(scroller) => {
+								this.scroller = scroller;
+							}}
+							height={this.props.height}>
 							<Comment.Group>
-								{this.state.hasMoreItem && directMessages.length >= 35 && (
-									<Button
-										onClick={() => {
-											this.props.data.fetchMore({
-												variables: {
-													cursor:
-														directMessages[directMessages.length - 1].createdAt,
-													channelId: this.props.channelId,
-												},
-												updateQuery: (previousResult, { fetchMoreResult }) => {
-													if (!fetchMoreResult) {
-														return previousResult;
-													}
-													if (fetchMoreResult.directMessages.length < 35) {
-														this.setState({ hasMoreItem: false });
-													}
-													return {
-														...previousResult,
-														directMessages: [
-															...previousResult.directMessages,
-															...fetchMoreResult.directMessages,
-														],
-													};
-												},
-											});
-										}}>
-										Load More
-									</Button>
-								)}
 								{directMessages
 									?.slice()
 									.reverse()
 									.map((m) => (
-										<Comment key={`direct-message-${m.id}`}>
-											<Comment.Content>
-												<Comment.Author as='a'>
-													{m.sender?.username}
-												</Comment.Author>
-												<Comment.Metadata>
-													<div>
-														{moment(new Date(parseInt(m.createdAt))).format(
-															"MMMM Do YYYY, h:mm:ss a"
-														)}
-													</div>
-												</Comment.Metadata>
-												<Comment.Text>
-													<>
-														<div
-															style={{
-																marginTop: "10px",
-																display: "flex",
-																alignItems: "center",
-															}}>
-															{m.files &&
-																m.files.map((file, index) => (
-																	<div
-																		key={index}
-																		style={{
-																			marginRight: "20px",
-																			marginTop: "20px",
-																			cursor: "pointer",
-																		}}>
-																		<a href={file} target='_blank'>
-																			<img
-																				style={{ height: "150px" }}
-																				src={file}
-																				alt='image'
-																			/>
-																		</a>
-																	</div>
-																))}
+										<div key={`direct-message-${m.id}`}>
+											<Comment>
+												<Comment.Content>
+													<Comment.Author as='a'>
+														{m.sender?.username}
+													</Comment.Author>
+													<Comment.Metadata>
+														<div>
+															{moment(new Date(parseInt(m.createdAt))).format(
+																"MMMM Do YYYY, h:mm:ss a"
+															)}
 														</div>
-														{m.text}
-													</>
-												</Comment.Text>
-												<Comment.Actions>
-													<Comment.Action>Reply</Comment.Action>
-												</Comment.Actions>
-											</Comment.Content>
-										</Comment>
+													</Comment.Metadata>
+													<Comment.Text>
+														<>
+															<div
+																style={{
+																	marginTop: "10px",
+																	display: "flex",
+																	alignItems: "center",
+																}}>
+																{m.files &&
+																	m.files.map((file, index) => (
+																		<div
+																			key={index}
+																			style={{
+																				marginRight: "20px",
+																				marginTop: "20px",
+																				cursor: "pointer",
+																			}}>
+																			<a href={file} target='_blank'>
+																				<img
+																					style={{ height: "150px" }}
+																					src={file}
+																					alt='image'
+																				/>
+																			</a>
+																		</div>
+																	))}
+															</div>
+															{m.text}
+														</>
+													</Comment.Text>
+													<Comment.Actions>
+														<Comment.Action>Reply</Comment.Action>
+													</Comment.Actions>
+												</Comment.Content>
+											</Comment>
+										</div>
 									))}
 							</Comment.Group>
 						</Messages>
@@ -222,5 +271,6 @@ export default graphql(DIRECT_MESSAGE_QUERY, {
 			userId: parseInt(props.userId),
 		},
 		fetchPolicy: "network-only",
+		notifyOnNetworkStatusChange: true,
 	}),
 })(DirectMessageContainer);

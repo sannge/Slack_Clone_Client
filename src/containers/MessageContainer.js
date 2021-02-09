@@ -27,7 +27,10 @@ class MessageContainer extends React.Component {
 	}
 
 	componentWillReceiveProps(newProps) {
-		const { channelId } = newProps;
+		const {
+			channelId,
+			data: { getMessages, loading },
+		} = newProps;
 		if (this.props.channelId !== channelId) {
 			console.log("props: ", channelId);
 			//if not unsubsribe, everytime,go to other and come back to this
@@ -36,6 +39,25 @@ class MessageContainer extends React.Component {
 				this.unsubscribe();
 			}
 			this.unsubscribe = this.subscribe(channelId);
+		}
+
+		if (
+			// this.scroller &&
+			this.props.data.getMessages &&
+			getMessages &&
+			this.props.data.getMessages.length !== getMessages.length
+		) {
+			// console.log(
+			// 	"DANG!",
+			// 	this.props?.data?.getMessages?.length,
+			// 	getMessages?.length
+			// );
+			// console.log(this.scroller);
+			setTimeout(() => {
+				if (this.scroller) {
+					this.scroller.scrollTop = this.fetchMoreScroll;
+				}
+			}, 150);
 		}
 	}
 
@@ -49,6 +71,7 @@ class MessageContainer extends React.Component {
 				if (!subscriptionData) {
 					return prev;
 				}
+
 				return {
 					...prev,
 					getMessages: [
@@ -60,8 +83,44 @@ class MessageContainer extends React.Component {
 		});
 
 	handleScroll = () => {
-		if (this.scroller) {
-			console.log(this.scroller.scrollTop);
+		const {
+			data: { getMessages, fetchMore, loading },
+			channelId,
+		} = this.props;
+
+		if (
+			this.scroller &&
+			!loading &&
+			this.scroller.scrollHeight -
+				Math.abs(this.scroller.scrollTop - window.innerHeight) <
+				0 &&
+			this.state.hasMoreItem &&
+			getMessages.length >= 35
+		) {
+			this.fetchMoreScroll = this.scroller.scrollTop;
+			fetchMore({
+				variables: {
+					cursor: getMessages[getMessages.length - 1].createdAt,
+					channelId: this.props.channelId,
+				},
+				updateQuery: (previousResult, { fetchMoreResult }) => {
+					if (!fetchMoreResult) {
+						return previousResult;
+					}
+
+					if (fetchMoreResult.getMessages.length < 35) {
+						this.setState({ hasMoreItem: false });
+					}
+
+					return {
+						...previousResult,
+						getMessages: [
+							...previousResult.getMessages,
+							...fetchMoreResult.getMessages,
+						],
+					};
+				},
+			});
 		}
 	};
 
@@ -74,6 +133,7 @@ class MessageContainer extends React.Component {
 		if (getMessages) {
 			console.log(getMessages);
 		}
+		console.log(loading);
 		return (
 			<div>
 				{loading ? (
@@ -129,7 +189,6 @@ class MessageContainer extends React.Component {
 								</div>
 							)}
 						</div>
-
 						<Messages
 							onScroll={this.handleScroll}
 							ref={(scroller) => {
@@ -139,91 +198,61 @@ class MessageContainer extends React.Component {
 							channelId={channelId}>
 							<div>
 								<Comment.Group>
-									{this.state.hasMoreItem && getMessages.length >= 35 && (
-										<Button
-											onClick={() => {
-												this.props.data.fetchMore({
-													variables: {
-														cursor:
-															getMessages[getMessages.length - 1].createdAt,
-														channelId: this.props.channelId,
-													},
-													updateQuery: (
-														previousResult,
-														{ fetchMoreResult }
-													) => {
-														if (!fetchMoreResult) {
-															return previousResult;
-														}
-														if (fetchMoreResult.getMessages.length < 35) {
-															this.setState({ hasMoreItem: false });
-														}
-														return {
-															...previousResult,
-															getMessages: [
-																...previousResult.getMessages,
-																...fetchMoreResult.getMessages,
-															],
-														};
-													},
-												});
-											}}>
-											Load More
-										</Button>
-									)}
 									{getMessages
 										.slice()
 										.reverse()
-										.map((m) => (
-											<Comment key={`message-${m.id}`}>
-												<Comment.Content>
-													<Comment.Author as='a'>
-														{m.user.username}
-													</Comment.Author>
-													<Comment.Metadata>
-														<div>
-															{moment(new Date(parseInt(m.createdAt))).format(
-																"MMMM Do YYYY, h:mm:ss a"
-															)}
-														</div>
-													</Comment.Metadata>
-													<Comment.Text>
-														<>
-															<div
-																style={{
-																	width: "180%",
-																	marginTop: "10px",
-																	display: "flex",
-																	flexWrap: "wrap",
-																	alignItems: "center",
-																}}>
-																{m.files &&
-																	m.files.map((file, index) => (
-																		<div
-																			key={index}
-																			style={{
-																				marginRight: "20px",
-																				marginTop: "20px",
-																				cursor: "pointer",
-																			}}>
-																			<a target='_blank' href={file}>
-																				<img
-																					style={{ height: "150px" }}
-																					src={file}
-																					alt='image'
-																				/>
-																			</a>
-																		</div>
-																	))}
+										.map((m, index) => (
+											<div key={`message-${m.id}`}>
+												<Comment>
+													<Comment.Content>
+														<Comment.Author as='a'>
+															{m.user.username}
+														</Comment.Author>
+														<Comment.Metadata>
+															<div>
+																{moment(new Date(parseInt(m.createdAt))).format(
+																	"MMMM Do YYYY, h:mm:ss a"
+																)}
 															</div>
-															{m.text}
-														</>
-													</Comment.Text>
-													<Comment.Actions>
-														<Comment.Action>Reply</Comment.Action>
-													</Comment.Actions>
-												</Comment.Content>
-											</Comment>
+														</Comment.Metadata>
+														<Comment.Text>
+															<>
+																<div
+																	style={{
+																		width: "180%",
+																		marginTop: "10px",
+																		display: "flex",
+																		flexWrap: "wrap",
+																		alignItems: "center",
+																	}}>
+																	{m.files &&
+																		m.files.map((file, index) => (
+																			<div
+																				key={index}
+																				style={{
+																					marginRight: "20px",
+																					marginTop: "20px",
+																					cursor: "pointer",
+																				}}>
+																				<a target='_blank' href={file}>
+																					<img
+																						style={{ height: "150px" }}
+																						src={file}
+																						alt='image'
+																					/>
+																				</a>
+																			</div>
+																		))}
+																</div>
+																{m.text}
+															</>
+														</Comment.Text>
+														<Comment.Actions>
+															<Comment.Action>Reply</Comment.Action>
+														</Comment.Actions>
+													</Comment.Content>
+												</Comment>
+											</div>
 										))}
 								</Comment.Group>
 							</div>
@@ -238,6 +267,7 @@ class MessageContainer extends React.Component {
 export default graphql(GET_MESSAGES, {
 	options: (props) => ({
 		fetchPolicy: "network-only",
+		notifyOnNetworkStatusChange: true,
 		variables: {
 			offset: 0,
 			channelId: props.channelId,

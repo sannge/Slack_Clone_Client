@@ -11,6 +11,7 @@ import {
 } from "semantic-ui-react";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
+import { Link } from "react-router-dom";
 
 class Login extends React.Component {
 	constructor(props) {
@@ -122,6 +123,18 @@ class Login extends React.Component {
 						Submit
 					</Button>
 				</Form>
+				<div
+					style={{
+						marginTop: "15px",
+						width: "100%",
+					}}>
+					<span style={{ display: "flex", justifyContent: "center" }}>
+						<p style={{ marginRight: "10px" }}> Don't have an account?</p>
+						<Link to='/register'>
+							<p>Sign Up Here</p>
+						</Link>
+					</span>
+				</div>
 			</Container>
 		);
 	}

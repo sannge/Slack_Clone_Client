@@ -7,6 +7,6 @@ export default styled.div`
 	padding-bottom: 0px;
 	display: flex;
 	height: ${(props) => props.height}vh;
-	flex-direction: column-reverse;
 	overflow-y: auto;
+	flex-direction: column-reverse;
 `;
