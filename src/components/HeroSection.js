@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -131,7 +132,11 @@ function HeroSection() {
 							</p>
 						</div>
 						<div>
-							<button className='button-purple'>LEARN HOW</button>
+							<button className='button-purple'>
+								<Link to='/register'>
+									<span style={{ color: "white" }}>REGISTER NOW</span>
+								</Link>
+							</button>
 							<button className='button-normal'>UPGRADE YOUR PLAN</button>
 						</div>
 
