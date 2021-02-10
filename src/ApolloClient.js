@@ -13,6 +13,7 @@ import { getMainDefinition } from "@apollo/client/utilities";
 
 import { WebSocketLink } from "@apollo/client/link/ws";
 
+console.log(process.env.REACT_APP_SERVER_URL);
 let httpLink = createUploadLink({
 	uri: `http://${process.env.REACT_APP_SERVER_URL}/graphql`,
 });
