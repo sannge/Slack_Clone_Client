@@ -31,8 +31,8 @@ class MessageContainer extends React.Component {
 			channelId,
 			data: { getMessages, loading },
 		} = newProps;
+		console.log(newProps);
 		if (this.props.channelId !== channelId) {
-			console.log("props: ", channelId);
 			//if not unsubsribe, everytime,go to other and come back to this
 			//channel, it will subscribe multiple times
 			if (this.unsubscribe) {
@@ -47,12 +47,6 @@ class MessageContainer extends React.Component {
 			getMessages &&
 			this.props.data.getMessages.length !== getMessages.length
 		) {
-			// console.log(
-			// 	"DANG!",
-			// 	this.props?.data?.getMessages?.length,
-			// 	getMessages?.length
-			// );
-			// console.log(this.scroller);
 			setTimeout(() => {
 				if (this.scroller) {
 					this.scroller.scrollTop = this.fetchMoreScroll;
@@ -66,12 +60,10 @@ class MessageContainer extends React.Component {
 			document: NEW_CHANNEL_MESSAGE,
 			variables: { channelId },
 			updateQuery: (prev, { subscriptionData }) => {
-				console.log(prev);
-				console.log(subscriptionData);
 				if (!subscriptionData) {
 					return prev;
 				}
-
+				this.fetchMoreScroll = null;
 				return {
 					...prev,
 					getMessages: [
@@ -94,6 +86,7 @@ class MessageContainer extends React.Component {
 			this.scroller.scrollHeight -
 				Math.abs(this.scroller.scrollTop - window.innerHeight) <
 				0 &&
+			Math.abs(this.scroller.scrollTop - window.innerHeight) > -20 &&
 			this.state.hasMoreItem &&
 			getMessages.length >= 35
 		) {
@@ -130,10 +123,7 @@ class MessageContainer extends React.Component {
 			data: { loading, getMessages },
 			createMessageLoading,
 		} = this.props;
-		if (getMessages) {
-			console.log(getMessages);
-		}
-		console.log(loading);
+
 		return (
 			<div>
 				{loading ? (
@@ -219,7 +209,8 @@ class MessageContainer extends React.Component {
 															<>
 																<div
 																	style={{
-																		width: "180%",
+																		width: "100%",
+																		maxWidth: "180%",
 																		marginTop: "10px",
 																		display: "flex",
 																		flexWrap: "wrap",

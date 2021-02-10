@@ -12,6 +12,7 @@ import {
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { Link } from "react-router-dom";
+import { wsLink } from "../ApolloClient";
 
 class Login extends React.Component {
 	constructor(props) {
@@ -43,7 +44,8 @@ class Login extends React.Component {
 		if (ok) {
 			localStorage.setItem("token", token);
 			localStorage.setItem("refreshToken", refreshToken);
-			this.props.history.push("/view-team");
+			wsLink.subscriptionClient.tryReconnect();
+			this.props.history.push("/view-team/just-logged-in");
 		} else {
 			const err = {};
 			errors.forEach(({ path, message }) => {

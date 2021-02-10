@@ -25,6 +25,7 @@ function ViewTeam({
 	},
 }) {
 	const [files, setFiles] = useState([]);
+	console.log(history.location);
 
 	const onDrop = (arr) => {
 		if (files.length > 0) {
@@ -38,6 +39,14 @@ function ViewTeam({
 	const [createMessage, { loading: createMessageLoading }] = useMutation(
 		SEND_MESSAGE
 	);
+
+	useEffect(() => {
+		if (teamId === "just-logged-in") {
+			window.location.href =
+				window.location.href.split("/view-team")[0] + "/view-team";
+			return;
+		}
+	}, [teamId]);
 
 	if (loading) {
 		return null;

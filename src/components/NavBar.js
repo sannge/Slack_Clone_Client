@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SlackLogo from "./SlackLogo";
-import { Icon } from "semantic-ui-react";
+import { Icon, Dropdown } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -70,7 +70,23 @@ function NavBar() {
 							cursor: "pointer",
 						}}
 					/>
-					<Icon name='bars' style={{ fontSize: "1.2rem", cursor: "pointer" }} />
+
+					<Icon
+						name='bars'
+						style={{ fontSize: "1.2rem", cursor: "pointer" }}></Icon>
+					<Dropdown
+						className='icon bars'
+						style={{ marginLeft: "-10px" }}
+						floating>
+						<Dropdown.Menu>
+							<Dropdown.Item>
+								<Link to='/register'>Register</Link>
+							</Dropdown.Item>
+							<Dropdown.Item>
+								<Link to='/login'>Sign In</Link>
+							</Dropdown.Item>
+						</Dropdown.Menu>
+					</Dropdown>
 				</div>
 			</div>
 		</Wrapper>

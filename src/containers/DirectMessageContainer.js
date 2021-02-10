@@ -39,14 +39,7 @@ class DirectMessageContainer extends React.Component {
 			directMessages &&
 			this.props.data.directMessages.length !== directMessages.length
 		) {
-			// console.log(
-			// 	"DANG!",
-			// 	this.props?.data?.getMessages?.length,
-			// 	getMessages?.length
-			// );
-			// console.log(this.scroller);
 			setTimeout(() => {
-				console.log("GODDAMN:", this.scroller);
 				if (this.scroller) {
 					this.scroller.scrollTop = this.fetchMoreScroll;
 				}
@@ -69,6 +62,8 @@ class DirectMessageContainer extends React.Component {
 						inline: "nearest",
 					});
 				}
+
+				this.fetchMoreScroll = null;
 				return {
 					...prev,
 					directMessages: [
@@ -92,6 +87,7 @@ class DirectMessageContainer extends React.Component {
 			this.scroller.scrollHeight -
 				Math.abs(this.scroller.scrollTop - window.innerHeight) <
 				0 &&
+			Math.abs(this.scroller.scrollTop - window.innerHeight) > -20 &&
 			this.state.hasMoreItem &&
 			directMessages.length >= 35
 		) {
@@ -124,7 +120,6 @@ class DirectMessageContainer extends React.Component {
 	};
 
 	render() {
-		console.log(this.props.height);
 		const {
 			teamId,
 			userId,
@@ -138,7 +133,6 @@ class DirectMessageContainer extends React.Component {
 		if (error) {
 			console.log(error);
 		}
-		console.log(directMessages);
 		return (
 			<div>
 				{loading ? (
@@ -224,6 +218,8 @@ class DirectMessageContainer extends React.Component {
 																style={{
 																	marginTop: "10px",
 																	display: "flex",
+																	flexWrap: "wrap",
+																	width: "100%",
 																	alignItems: "center",
 																}}>
 																{m.files &&
@@ -234,6 +230,7 @@ class DirectMessageContainer extends React.Component {
 																				marginRight: "20px",
 																				marginTop: "20px",
 																				cursor: "pointer",
+																				boxShadow: "0 0 1px #ccc",
 																			}}>
 																			<a href={file} target='_blank'>
 																				<img

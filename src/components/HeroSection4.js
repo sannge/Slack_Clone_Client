@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -26,7 +27,6 @@ const Wrapper = styled.div`
 
 	& .white-button {
 		background-color: #fff;
-		color: #611f69;
 		fill: #611f69;
 		font-size: calc(0.875rem + (0 * (100vw - 400px) / 624));
 		appearance: none;
@@ -95,7 +95,11 @@ function HeroSection4() {
 								justifyContent: "center",
 								marginTop: "20px",
 							}}>
-							<button className='white-button'>TRY FOR FREE</button>
+							<button className='white-button'>
+								<Link style={{ color: "#611f69" }} to='/register'>
+									TRY FOR FREE
+								</Link>
+							</button>
 						</div>
 
 						<div

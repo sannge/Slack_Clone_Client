@@ -5,8 +5,17 @@ import HeroSection2 from "../components/HeroSection2";
 import HeroSection3 from "../components/HeroSection3";
 import HeroSection4 from "../components/HeroSection4";
 import Footer from "../components/Footer";
+import decode from "jwt-decode";
 
-const Home = () => {
+const Home = (props) => {
+	useEffect(() => {
+		if (
+			localStorage.getItem("token") &&
+			decode(localStorage.getItem("token"))
+		) {
+			props.history.push("/view-team");
+		}
+	});
 	return (
 		<div>
 			<div>

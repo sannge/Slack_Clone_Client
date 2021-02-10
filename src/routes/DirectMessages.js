@@ -84,6 +84,7 @@ function DirectMessages({
 	}
 
 	const { teams: allTeams, username } = me;
+	console.log("GETUSERS: ", getUser);
 
 	let teamIdx = teamId
 		? findIndex(allTeams, ["id", parseInt(teamId, 10)])
@@ -131,7 +132,7 @@ function DirectMessages({
 				currentTeamId={teamId}
 				username={username}
 			/>
-			<Header channelName={getUser.username} />
+			<Header channelName={getUser?.username} />
 			<DirectMessageContainer
 				teamId={teamId}
 				userId={userId}
@@ -151,7 +152,7 @@ function DirectMessages({
 
 					setFiles([]);
 				}}
-				placeholder={getUser.username}
+				placeholder={getUser?.username}
 				onDrop={onDrop}
 				createMessageLoading={createDirectMessageLoading}
 				files={files}

@@ -14,13 +14,14 @@ import { getMainDefinition } from "@apollo/client/utilities";
 import { WebSocketLink } from "@apollo/client/link/ws";
 
 let httpLink = createUploadLink({
-	uri: "http://localhost:8080/graphql",
+	uri: `http://${process.env.REACT_APP_SERVER_URL}/graphql`,
 });
 
-let wsLink = new WebSocketLink({
-	uri: "ws://localhost:8080/graphql",
+export let wsLink = new WebSocketLink({
+	uri: `ws://${process.env.REACT_APP_SERVER_URL}/graphql`,
 	options: {
 		reconnect: true,
+		lazy: true,
 		connectionParams: {
 			token: localStorage.getItem("token"),
 			refreshToken: localStorage.getItem("refreshToken"),
